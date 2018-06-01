@@ -596,7 +596,7 @@ def save_to_bucket(train_dir, bucket, project_id, basename=None, step=None, save
 
 
 
-def gcsfuse(bucket=None, gcs_class="regional", gcs_location="asia-east1", project_id=None):
+def gcsfuse(bucket=None, gcs_class="regional", gcs_location="asia-east1", project_id=None, implicit_dirs=False):
   """install `gcsfuse` as necessary and mount GCS bucket to local fs in `/tmp/gcs-bucket/[bucket]`
 
   NOTE: not sure how to use client.create_bucket() with class and location defaults ?
@@ -669,7 +669,12 @@ def gcsfuse(bucket=None, gcs_class="regional", gcs_location="asia-east1", projec
   if not tf.gfile.Exists(FUSED_BUCKET_PATH):  tf.gfile.MakeDirs(FUSED_BUCKET_PATH)
   # cmd = _cmd["gcsfuse"].format(BUCKET, FUSED_BUCKET_PATH)
   # print(cmd)
-  result = __shell__(  _cmd["gcsfuse"].format(BUCKET, FUSED_BUCKET_PATH)  )
+  
+  if implicit_dirs:
+    result = __shell__(  _cmd["gcsfuse"].format(BUCKET, FUSED_BUCKET_PATH)  )
+  else: 
+    result = __shell__(  _cmd["gcsfuse"].format(BUCKET, FUSED_BUCKET_PATH) + " --implicit_dirs"  )
+
   print("gcsfuse():\n", "\n".join(result))
   if result.pop()=='File system has been successfully mounted.':
     return FUSED_BUCKET_PATH
